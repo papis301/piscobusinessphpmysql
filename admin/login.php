@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once '../inc/config.php';
-require_once '../inc/db.php';
+require_once '../inc/db.php'; // contient la connexion $pdo
 require_once '../inc/functions.php';
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -10,19 +10,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password']);
 
     // Vérifier si le téléphone existe
-    $stmt = $conn->prepare("SELECT * FROM users WHERE phone = ?");
-    $stmt->bind_param("s", $phone);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE phone = ?");
+    $stmt->execute([$phone]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($result && $result->num_rows === 1) {
-        $user = $result->fetch_assoc();
-
+    if ($user) {
         // Vérifie le mot de passe
         if (password_verify($password, $user['password'])) {
             // Vérifie si c'est un admin
             if ($user['is_admin']) {
-                $_SESSION['user'] = $user;
+                $_SESSION['user_id'] = $user['id'];
                 header("Location: index.php");
                 exit;
             } else {

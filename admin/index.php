@@ -1,88 +1,72 @@
 <?php
 session_start();
+require_once __DIR__ . '/../inc/db.php';
+require_once __DIR__ . '/../inc/functions.php';
 
-// Vérification que l'utilisateur est connecté et admin
-if (!isset($_SESSION['user'])) {
-    header("Location: login.php");
+// Récupère l'utilisateur connecté
+$user = currentUser();
+
+// Si pas connecté ou pas admin → redirection vers login
+if (!$user || !$user['is_admin']) {
+    header("Location: login_admin.php");
     exit;
 }
 
-$user = $_SESSION['user'];
-if (!$user['is_admin']) {
-    header("Location: ../index.php");
-    exit;
+// Récupérer les stats
+try {
+    $product_count  = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
+    $category_count = $pdo->query("SELECT COUNT(*) FROM categories")->fetchColumn();
+    $user_count     = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
+} catch (PDOException $e) {
+    die("Erreur lors de la récupération des données : " . $e->getMessage());
 }
-
-require_once '../inc/db.php'; // <-- ajoute le slash
-
-// Compter les produits
-$productCount = $conn->query("SELECT COUNT(*) AS total FROM products")->fetch_assoc()['total'] ?? 0;
-
-// Compter les catégories
-$categoryCount = $conn->query("SELECT COUNT(*) AS total FROM categories")->fetch_assoc()['total'] ?? 0;
-
-// Compter les utilisateurs
-$userCount = $conn->query("SELECT COUNT(*) AS total FROM users")->fetch_assoc()['total'] ?? 0;
-
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Tableau de bord - Admin Pisco</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <title>Tableau de bord - Admin Pisco Business</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-success">
-  <div class="container-fluid">
-    <a class="navbar-brand fw-bold text-white" href="index.php">Pisco Business</a>
-    <div>
-      <a href="products.php" class="btn btn-light btn-sm me-2">Produits</a>
-      <a href="categories.php" class="btn btn-light btn-sm me-2">Catégories</a>
-      <a href="logout.php" class="btn btn-danger btn-sm">Déconnexion</a>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Bienvenue, <?= htmlspecialchars($user['name'] ?? 'Invité') ?> 👋</h1>
+        <a href="logout.php" class="btn btn-danger">Déconnexion</a>
     </div>
-  </div>
-</nav>
 
-<div class="container py-5">
-  <h2 class="mb-4">Bienvenue, <?= htmlspecialchars($user['name']) ?> 👋</h2>
-
-  <div class="row g-4">
-    <div class="col-md-4">
-      <div class="card shadow border-0">
-        <div class="card-body text-center">
-          <h5 class="card-title text-success">Produits</h5>
-          <p class="display-6 fw-bold"><?= $productCount ?></p>
-          <a href="products.php" class="btn btn-outline-success btn-sm">Gérer</a>
+    <h2>Tableau de bord</h2>
+    <div class="row mt-3">
+        <div class="col-md-4 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Produits</h5>
+                    <p class="card-text fs-3"><?= $product_count ?></p>
+                    <a href="products.php" class="btn btn-success btn-sm">Gérer</a>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card shadow border-0">
-        <div class="card-body text-center">
-          <h5 class="card-title text-success">Catégories</h5>
-          <p class="display-6 fw-bold"><?= $categoryCount ?></p>
-          <a href="categories.php" class="btn btn-outline-success btn-sm">Gérer</a>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Catégories</h5>
+                    <p class="card-text fs-3"><?= $category_count ?></p>
+                    <a href="categories.php" class="btn btn-success btn-sm">Gérer</a>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card shadow border-0">
-        <div class="card-body text-center">
-          <h5 class="card-title text-success">Utilisateurs</h5>
-          <p class="display-6 fw-bold"><?= $userCount ?></p>
-          <a href="users.php" class="btn btn-outline-success btn-sm">Voir</a>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Utilisateurs</h5>
+                    <p class="card-text fs-3"><?= $user_count ?></p>
+                    <a href="#" class="btn btn-success btn-sm">Gérer</a>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
-
-<footer class="text-center mt-5 text-muted small">
-  &copy; <?= date('Y') ?> Pisco Business - Tableau de bord Admin
-</footer>
 
 </body>
 </html>
