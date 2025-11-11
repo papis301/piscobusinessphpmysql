@@ -22,7 +22,7 @@ $categories = $stmt->fetchAll();
 <body>
   <h2>Liste des catégories</h2>
 
-  <p><a href="dashboard.php">🏠 Tableau de bord</a> | <a href="add_category.php">+ Ajouter une catégorie</a></p>
+  <p><a href="index.php">🏠 Tableau de bord</a> | <a href="add_category.php">+ Ajouter une catégorie</a></p>
 
   <?php if(isset($_GET['success'])) echo "<p style='color:green'>Action réussie.</p>"; ?>
 

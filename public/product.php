@@ -1,36 +1,94 @@
 <?php
-require_once __DIR__.'/../inc/config.php';
-require_once __DIR__.'/../inc/functions.php';
+require_once '../inc/db.php';
+require_once '../inc/functions.php';
 
-if(!isset($_GET['id'])) {
-    header('Location: index.php'); exit;
+// Vérifier que l'ID du produit est passé
+if(!isset($_GET['id']) || !is_numeric($_GET['id'])){
+    die("Produit introuvable.");
 }
-$id = (int)$_GET['id'];
-$product = getProductById($id);
-if(!$product){ echo "Produit non trouvé"; exit; }
 
-// ajout au panier
-if($_SERVER['REQUEST_METHOD'] === 'POST'){
-    $qty = max(1, (int)($_POST['qty'] ?? 1));
-    if(!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
-    if(isset($_SESSION['cart'][$id])) $_SESSION['cart'][$id] += $qty;
-    else $_SESSION['cart'][$id] = $qty;
-    header('Location: cart.php'); exit;
+$product_id = intval($_GET['id']);
+
+// Récupérer le produit
+$stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
+$stmt->execute([$product_id]);
+$product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if(!$product){
+    die("Produit introuvable.");
 }
+
+// Récupérer toutes les images du produit
+$stmtImages = $pdo->prepare("SELECT image FROM product_images WHERE product_id = ? ORDER BY id ASC");
+$stmtImages->execute([$product_id]);
+$images = $stmtImages->fetchAll(PDO::FETCH_COLUMN);
 ?>
-<!doctype html>
-<html>
-<head><meta charset="utf-8"><title><?php echo htmlspecialchars($product['name']); ?></title></head>
-<body>
-<h1><?php echo htmlspecialchars($product['name']); ?></h1>
-<p><?php echo nl2br(htmlspecialchars($product['description'])); ?></p>
-<p>Prix: <?php echo number_format($product['price'],2); ?> FCFA</p>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title><?= htmlspecialchars($product['name']) ?> - Pisco Business</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .thumbnail img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .thumbnail img.active {
+            border-color: #198754;
+        }
+    </style>
+</head>
+<body class="bg-light">
 
-<form method="post">
-    Quantité: <input type="number" name="qty" value="1" min="1">
-    <button type="submit">Ajouter au panier</button>
-</form>
+<div class="container mt-5">
+    <a href="index.php" class="btn btn-secondary mb-4">← Retour aux produits</a>
 
-<a href="index.php">Retour</a>
+    <div class="row">
+        <div class="col-md-6">
+            <?php if(!empty($images)): ?>
+                <div>
+                    <img id="mainImage" src="../<?= htmlspecialchars($images[0]) ?>" class="img-fluid mb-3" style="height:400px; object-fit:cover;">
+                </div>
+                <div class="d-flex gap-2 thumbnail">
+                    <?php foreach($images as $key => $img): ?>
+                        <img src="../<?= htmlspecialchars($img) ?>" class="<?= $key === 0 ? 'active' : '' ?>" data-src="../<?= htmlspecialchars($img) ?>">
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height:400px;">
+                    Pas d'image
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="col-md-6">
+            <h2><?= htmlspecialchars($product['name']) ?></h2>
+            <p class="fs-4 fw-bold"><?= number_format($product['price'], 0, ',', ' ') ?> F CFA</p>
+            <p><?= nl2br(htmlspecialchars($product['description'])) ?></p>
+            <p><strong>Stock :</strong> <?= intval($product['stock']) ?></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const thumbnails = document.querySelectorAll('.thumbnail img');
+    const mainImage = document.getElementById('mainImage');
+
+    thumbnails.forEach(img => {
+        img.addEventListener('click', function(){
+            // Changer l'image principale
+            mainImage.src = this.dataset.src;
+
+            // Gérer la classe active
+            thumbnails.forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+</script>
+
 </body>
 </html>
