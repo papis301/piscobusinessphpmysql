@@ -13,7 +13,7 @@ if (!$user['is_admin']) {
     exit;
 }
 
-require_once '../db.php';
+require_once '../inc/db.php'; // <-- ajoute le slash
 
 // Compter les produits
 $productCount = $conn->query("SELECT COUNT(*) AS total FROM products")->fetch_assoc()['total'] ?? 0;
