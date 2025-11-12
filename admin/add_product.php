@@ -6,7 +6,7 @@ require_once '../inc/functions.php';
 // Vérification admin
 $user = currentUser();
 if(!$user || !$user['is_admin']){
-    header('Location: login_admin.php');
+    header('Location: login.php');
     exit;
 }
 
