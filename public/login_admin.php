@@ -1,7 +1,11 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
-require_once '../inc/db.php'; // contient la connexion $pdo
-require_once '../inc/functions.php';
+require_once 'db.php'; // contient $pdo
+require_once 'functions.php';
 
 $error = '';
 
@@ -9,18 +13,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = trim($_POST['phone']);
     $password = trim($_POST['password']);
 
-    // Vérifier si le téléphone existe
     $stmt = $pdo->prepare("SELECT * FROM users WHERE phone = ?");
     $stmt->execute([$phone]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user) {
-        // Vérifie le mot de passe
         if (password_verify($password, $user['password'])) {
-            // Vérifie si c'est un admin
-            if ($user['is_admin']) {
+            if (!empty($user['is_admin']) && $user['is_admin'] == 1) {
+                // ✅ Stockage complet de la session
                 $_SESSION['user_id'] = $user['id'];
-                header("Location: index.php");
+                $_SESSION['user'] = $user;
+
+                // Petit test de debug
+                // echo "<pre>"; print_r($_SESSION); exit;
+
+                header("Location: index_admin.php");
                 exit;
             } else {
                 $error = "Accès refusé. Vous n'êtes pas administrateur.";
@@ -33,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -47,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
     <h4 class="text-center mb-4 text-success fw-bold">Pisco Business - Admin</h4>
 
-    <?php if ($error): ?>
+    <?php if (!empty($error)): ?>
       <div class="alert alert-danger text-center"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 

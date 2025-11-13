@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . '/../inc/config.php';
-require_once __DIR__ . '/../inc/functions.php';
-require_once __DIR__ . '/../inc/db.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/db.php';
 
 $user = currentUser();
 if (!$user || !$user['is_admin']) {
-    header('Location: ../public/index.php');
+    header('Location: index.php');
     exit;
 }
 

@@ -1,6 +1,9 @@
 <?php
-require_once '../inc/db.php';
-require_once '../inc/functions.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+require_once 'db.php';
+require_once 'functions.php';
 
 // Récupérer tous les produits avec leur première image
 $stmt = $pdo->query("

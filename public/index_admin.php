@@ -1,12 +1,15 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
-require_once __DIR__ . '/../inc/db.php';
-require_once __DIR__ . '/../inc/functions.php';
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/functions.php';
 
 // Récupère l'utilisateur connecté
 $user = currentUser();
 
-// Si pas connecté ou pas admin → redirection vers login
+// Si pas connecté ou pas admin → redirection vers login_admin_admin
 if (!$user || !$user['is_admin']) {
     header("Location: login_admin.php");
     exit;

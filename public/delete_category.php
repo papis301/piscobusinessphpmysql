@@ -1,7 +1,7 @@
 <?php
-require_once '../inc/config.php';
-require_once '../inc/db.php';
-require_once '../inc/functions.php';
+require_once 'config.php';
+require_once 'db.php';
+require_once 'functions.php';
 
 $user = currentUser();
 if(!$user || !$user['is_admin']){

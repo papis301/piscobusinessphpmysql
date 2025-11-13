@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__.'/../inc/config.php';
-require_once __DIR__.'/../inc/functions.php';
-require_once __DIR__.'/../inc/db.php';
+require_once __DIR__.'config.php';
+require_once __DIR__.'functions.php';
+require_once __DIR__.'db.php';
 
 $cart = $_SESSION['cart'] ?? [];
 
