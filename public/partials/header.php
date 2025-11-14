@@ -6,15 +6,8 @@
 
     <nav>
       <a href="index.php" class="text-white text-decoration-none mx-3">Accueil</a>
-      <a href="#" class="text-white text-decoration-none mx-3">Produits</a>
-      <a href="#" class="text-white text-decoration-none mx-3">Catégories</a>
-      <a href="#" class="text-white text-decoration-none mx-3">Contact</a>
     </nav>
 
-    <div>
-      <a href="#" class="btn btn-warning text-dark">
-        <i class="fa fa-shopping-cart"></i> Panier
-      </a>
-    </div>
+    
   </div>
 </header>
