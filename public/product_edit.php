@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Upload image si nouveau fichier
     if (!empty($_FILES['image']['name'])) {
-        $targetDir = __DIR__ . '/../uploads/';
+        $targetDir = __DIR__ . 'uploads/';
         if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
 
         $basename = basename($_FILES['image']['name']);
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <label>Image</label><br>
     <?php if($product['image']): ?>
-        <img src="../uploads/<?php echo htmlspecialchars($product['image']); ?>" width="100"><br>
+        <img src="uploads/<?php echo htmlspecialchars($product['image']); ?>" width="100"><br>
     <?php endif; ?>
     <input type="file" name="image" accept="image/*"><br><br>
 

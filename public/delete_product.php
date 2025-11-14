@@ -17,7 +17,7 @@ if ($id > 0) {
     $stmt->execute([$id]);
     $p = $stmt->fetch();
     if ($p && $p['image']) {
-        $file = __DIR__ . '/../uploads/' . $p['image'];
+        $file = __DIR__ . 'uploads/' . $p['image'];
         if (file_exists($file)) unlink($file);
     }
 

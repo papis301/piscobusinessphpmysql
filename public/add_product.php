@@ -44,7 +44,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
             // 2️⃣ Upload des images
             if(!empty($_FILES['images']['name'][0])){
-                $targetDir = "../uploads/";
+                $targetDir = "uploads/";
                 if(!is_dir($targetDir)) mkdir($targetDir, 0777, true);
 
                 foreach($_FILES['images']['name'] as $key => $filename){

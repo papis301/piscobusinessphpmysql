@@ -31,7 +31,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
     // Upload image (si nouvelle)
     if(!empty($_FILES['image']['name'])){
-        $targetDir = "../uploads/";
+        $targetDir = "uploads/";
         if(!is_dir($targetDir)) mkdir($targetDir, 0777, true);
         $fileName = time() . '_' . basename($_FILES['image']['name']);
         $targetFile = $targetDir . $fileName;

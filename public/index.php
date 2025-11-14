@@ -121,7 +121,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-lg-3 col-md-4 col-sm-6">
           <div class="product-card">
             <a href="product.php?id=<?= $p['id'] ?>" class="text-decoration-none text-dark">
-              <img src="../<?= htmlspecialchars($p['main_image'] ?: 'uploads/default.jpg') ?>" class="w-100" alt="<?= htmlspecialchars($p['name']) ?>">
+              <img src="<?= htmlspecialchars($p['main_image'] ?: 'uploads/default.jpg') ?>" class="w-100" alt="<?= htmlspecialchars($p['name']) ?>">
               <div class="p-3">
                 <h6 class="product-title mb-1"><?= htmlspecialchars($p['name']) ?></h6>
                 <p class="product-price mb-2"><?= number_format($p['price'], 0, ',', ' ') ?> F CFA</p>

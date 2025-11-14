@@ -111,7 +111,7 @@ $images = $stmtImg->fetchAll(PDO::FETCH_COLUMN);
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <img src="../uploads/default.jpg" class="main-image" alt="Image non disponible">
+                    <img src="uploads/default.jpg" class="main-image" alt="Image non disponible">
                 <?php endif; ?>
             </div>
         </div>
