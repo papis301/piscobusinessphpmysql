@@ -3,12 +3,14 @@ session_start();
 require_once 'db.php';
 require_once 'functions.php';
 
-// Vérification admin
-$user = currentUser();
-if(!$user || !$user['is_admin']){
-    header('Location: login.php');
+// Vérifier si un utilisateur est connecté
+if (!isset($_SESSION['user'])) {
+    header("Location: login.php");
     exit;
 }
+
+$user = $_SESSION['user'];
+$user_id = $user['id'];
 
 // Charger les catégories
 $categories = $pdo->query("SELECT id, name FROM categories ORDER BY name ASC")->fetchAll(PDO::FETCH_ASSOC);
@@ -23,26 +25,29 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $stock = intval($_POST['stock']);
     $category_id = !empty($_POST['category_id']) ? intval($_POST['category_id']) : null;
 
-    // Validation
     if($name == '' || $price <= 0){
-        $error = "Veuillez remplir tous les champs obligatoires.";
+        $error = "Veuillez remplir le nom et le prix.";
     } else {
         try {
-          function slugify($text){
-                  $text = strtolower(trim($text));
-                  $text = preg_replace('/[^a-z0-9]+/i','-', $text);
-                  $text = trim($text, '-');
-                  return $text;
-              }
+            // Génération du slug
+            function slugify($text){
+                $text = strtolower(trim($text));
+                $text = preg_replace('/[^a-z0-9]+/i','-', $text);
+                return trim($text, '-');
+            }
 
-              $slug = slugify($name);
-            // 1️⃣ Insertion du produit
-            $stmt = $pdo->prepare("INSERT INTO products (name, description, price, stock, category_id, slug) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$name, $description, $price, $stock, $category_id, $slug]);
+            $slug = slugify($name);
+
+            // 1️⃣ Insertion du produit (AJOUT user_id)
+            $stmt = $pdo->prepare("
+                INSERT INTO products (user_id, name, description, price, stock, category_id, slug)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([$user['id'], $name, $description, $price, $stock, $category_id, $slug]);
 
             $product_id = $pdo->lastInsertId();
 
-            // 2️⃣ Upload des images
+            // 2️⃣ Upload des images multiples
             if(!empty($_FILES['images']['name'][0])){
                 $targetDir = "uploads/";
                 if(!is_dir($targetDir)) mkdir($targetDir, 0777, true);
@@ -53,14 +58,12 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
                     $allowed = ['jpg','jpeg','png','gif','webp'];
 
                     if(in_array($ext, $allowed)){
-                        $newName = time().'_'.$key.'_'.basename($filename);
+                        $newName = time().'_'.$key.'.'.$ext;
                         $targetFile = $targetDir . $newName;
 
                         if(move_uploaded_file($tmpName, $targetFile)){
-                            $imgPath = 'uploads/' . $newName;
-                            // Insertion dans product_images
                             $stmtImg = $pdo->prepare("INSERT INTO product_images (product_id, image) VALUES (?, ?)");
-                            $stmtImg->execute([$product_id, $imgPath]);
+                            $stmtImg->execute([$product_id, $targetFile]);
                         }
                     }
                 }
@@ -78,14 +81,14 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Ajouter un produit - Admin Pisco Business</title>
+    <title>Ajouter un produit</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 
 <div class="container mt-5">
     <h2>Ajouter un produit</h2>
-    <p><a href="products.php">← Retour à la liste des produits</a></p>
+    <p><a href="dashboard.php">← Retour au tableau de bord</a></p>
 
     <?php if($error): ?>
         <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>

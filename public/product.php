@@ -6,7 +6,7 @@ require_once 'db.php';
 require_once 'functions.php';
 
 // Vérifier l'ID du produit
-if(!isset($_GET['id']) || !is_numeric($_GET['id'])){
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     die("Produit introuvable.");
 }
 
@@ -17,7 +17,7 @@ $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
 $stmt->execute([$product_id]);
 $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if(!$product){
+if (!$product) {
     die("Produit introuvable.");
 }
 
@@ -25,6 +25,11 @@ if(!$product){
 $stmtImg = $pdo->prepare("SELECT image FROM product_images WHERE product_id = ? ORDER BY id ASC");
 $stmtImg->execute([$product_id]);
 $images = $stmtImg->fetchAll(PDO::FETCH_COLUMN);
+
+// Récupération du vendeur
+$stmtSeller = $pdo->prepare("SELECT name, phone FROM users WHERE id = ?");
+$stmtSeller->execute([$product['user_id']]); // seller_id = vendeur
+$seller = $stmtSeller->fetch(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -56,6 +61,8 @@ $images = $stmtImg->fetchAll(PDO::FETCH_COLUMN);
             display: flex;
             gap: 10px;
             margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .product-thumbs img {
             width: 80px;
@@ -70,24 +77,19 @@ $images = $stmtImg->fetchAll(PDO::FETCH_COLUMN);
             border-color: #198754;
         }
 
-        .product-info h2 {
-            font-weight: 700;
-        }
         .product-price {
             color: #198754;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: bold;
         }
+
         .btn-buy {
             background-color: #ffc107;
             color: #000;
             font-weight: 600;
             border: none;
-            transition: 0.3s;
         }
-        .btn-buy:hover {
-            background-color: #e0a800;
-        }
+        .btn-buy:hover { background-color: #e0a800; }
     </style>
 </head>
 <body>
@@ -103,11 +105,11 @@ $images = $stmtImg->fetchAll(PDO::FETCH_COLUMN);
         <!-- Galerie images -->
         <div class="col-md-6">
             <div class="product-gallery">
-                <?php if(!empty($images)): ?>
-                    <img id="mainImage" src="../<?= htmlspecialchars($images[0]) ?>" class="main-image mb-3" alt="<?= htmlspecialchars($product['name']) ?>">
+                <?php if (!empty($images)): ?>
+                    <img id="mainImage" src="<?= htmlspecialchars($images[0]) ?>" class="main-image" alt="<?= htmlspecialchars($product['name']) ?>">
                     <div class="product-thumbs">
-                        <?php foreach($images as $key => $img): ?>
-                            <img src="../<?= htmlspecialchars($img) ?>" class="<?= $key === 0 ? 'active' : '' ?>" data-src="../<?= htmlspecialchars($img) ?>">
+                        <?php foreach ($images as $key => $img): ?>
+                            <img src="<?= htmlspecialchars($img) ?>" class="<?= $key === 0 ? 'active' : '' ?>" data-src="<?= htmlspecialchars($img) ?>">
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
@@ -117,21 +119,36 @@ $images = $stmtImg->fetchAll(PDO::FETCH_COLUMN);
         </div>
 
         <!-- Infos produit -->
-        <div class="col-md-6 product-info">
+        <div class="col-md-6">
             <h2><?= htmlspecialchars($product['name']) ?></h2>
             <p class="product-price"><?= number_format($product['price'], 0, ',', ' ') ?> F CFA</p>
 
             <p class="text-muted"><?= nl2br(htmlspecialchars($product['description'])) ?></p>
 
-            <p><strong>Disponibilité :</strong> 
+            <p><strong>Disponibilité :</strong>
                 <?= $product['stock'] > 0 ? "<span class='text-success'>En stock</span>" : "<span class='text-danger'>Rupture</span>" ?>
             </p>
 
-            <div class="mt-4">
-                <button class="btn btn-buy btn-lg px-5">
-                    <i class="fa fa-shopping-cart me-2"></i> Acheter maintenant
-                </button>
-            </div>
+            <hr>
+
+            <?php if ($seller): ?>
+                <p><strong>Vendeur :</strong> <?= htmlspecialchars($seller['name']) ?></p>
+                <p><strong>Téléphone :</strong>
+                    <a href="tel:<?= htmlspecialchars($seller['phone']) ?>" class="text-success fw-bold">
+                        <?= htmlspecialchars($seller['phone']) ?>
+                    </a>
+                </p>
+
+                <a href="https://wa.me/<?= htmlspecialchars($seller['phone']) ?>?text=Bonjour, je suis intéressé par votre produit : <?= urlencode($product['name']) ?>"
+                   target="_blank"
+                   class="btn btn-success btn-lg mb-3">
+                    <i class="fab fa-whatsapp"></i> Contacter sur WhatsApp
+                </a>
+            <?php endif; ?>
+
+            <!--<button class="btn btn-buy btn-lg px-5">
+                <i class="fa fa-shopping-cart me-2"></i> Acheter maintenant
+            </button>-->
         </div>
     </div>
 </div>

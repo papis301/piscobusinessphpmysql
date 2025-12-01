@@ -60,6 +60,8 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <!-- Bootstrap + Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
 
     <style>
         body { background-color: #f8f9fa; font-family: 'Poppins', sans-serif; }
@@ -84,6 +86,15 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .btn-buy { background-color: #ffc107; border: none; color: #000; font-weight: 600; }
         .btn-buy:hover { background-color: #e0a800; }
     </style>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YD4RKCBX1M"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YD4RKCBX1M');
+</script>
 </head>
 <body>
 
@@ -124,7 +135,6 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <div class="carousel-indicators">
     <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
     <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
   </div>
   <div class="carousel-inner rounded">
     <div class="carousel-item active">
@@ -133,9 +143,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="carousel-item">
       <img src="uploads/slider2.png" class="d-block w-100" alt="Slide 2">
     </div>
-    <div class="carousel-item">
-      <img src="uploads/slider3.jpg" class="d-block w-100" alt="Slide 3">
-    </div>
+    
   </div>
   <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
     <span class="carousel-control-prev-icon" aria-hidden="true"></span>

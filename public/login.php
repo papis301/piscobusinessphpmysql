@@ -2,44 +2,82 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-require_once __DIR__.'/config.php';
-require_once __DIR__.'/db.php';
 
-if($_SERVER['REQUEST_METHOD'] === 'POST'){
-    $phone = trim($_POST['phone']);
-    $password = $_POST['password'];
+session_start();
+require_once 'db.php'; // connexion $pdo
 
-    $stmt = $pdo->prepare("SELECT id, password FROM users WHERE phone = ?");
-    $stmt->execute([$phone]);
-    $user = $stmt->fetch();
+$errors = [];
 
-    if($user && password_verify($password, $user['password'])){
-        $_SESSION['user_id'] = $user['id'];
-        header('Location: index.php');
-        exit;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $phone    = trim($_POST['phone']);
+    $password = trim($_POST['password']);
+
+    // Vérification des champs
+    if (empty($phone) || empty($password)) {
+        $errors[] = "Veuillez remplir tous les champs.";
     } else {
-        $error = "Numéro ou mot de passe incorrect.";
+        // Récupérer l'utilisateur
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE phone = ?");
+        $stmt->execute([$phone]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user && password_verify($password, $user['password'])) {
+            // Connexion OK
+            $_SESSION['user'] = [
+                'id'    => $user['id'],
+                'name'  => $user['name'],
+                'phone' => $user['phone'],
+                'is_admin' => $user['is_admin']
+            ];
+
+            header("Location: dashboard.php"); // page d'accueil
+            exit;
+        } else {
+            $errors[] = "Téléphone ou mot de passe incorrect.";
+        }
     }
 }
 ?>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
-<head><meta charset="utf-8"><title>Connexion</title></head>
-<body>
-<h2>Connexion</h2>
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion - Pisco Business</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
 
-<?php if(isset($error)) echo "<p style='color:red'>$error</p>"; ?>
+<div class="container d-flex justify-content-center align-items-center" style="height:100vh;">
+    <div class="card shadow-lg p-4" style="max-width:450px; width:100%;">
+        <h3 class="text-center mb-4 text-success fw-bold">Connexion</h3>
 
-<form method="post">
-    <label>Téléphone</label><br>
-    <input type="text" name="phone" required><br><br>
+        <!-- Erreurs -->
+        <?php if(!empty($errors)): ?>
+            <div class="alert alert-danger">
+                <?= implode("<br>", array_map('htmlspecialchars', $errors)) ?>
+            </div>
+        <?php endif; ?>
 
-    <label>Mot de passe</label><br>
-    <input type="password" name="password" required><br><br>
+        <!-- Formulaire -->
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Téléphone</label>
+                <input type="text" class="form-control" name="phone" required placeholder="Ex : 770001122">
+            </div>
 
-    <button type="submit">Se connecter</button>
-</form>
+            <div class="mb-3">
+                <label class="form-label">Mot de passe</label>
+                <input type="password" class="form-control" name="password" required placeholder="********">
+            </div>
 
-<p>Pas encore inscrit ? <a href="register.php">Créer un compte</a></p>
+            <button class="btn btn-success w-100">Se connecter</button>
+        </form>
+
+        <p class="mt-3 text-center">
+            Pas de compte ? <a href="register.php">Créer un compte</a>
+        </p>
+    </div>
+</div>
+
 </body>
 </html>

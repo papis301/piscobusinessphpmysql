@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$name, $phone, $hash]);
 
             $success = "Compte administrateur créé avec succès. Vous pouvez maintenant vous connecter.";
-            header("Refresh:2; url=login.php");
+            header("Refresh:2; url=login_admin.php");
         } catch (Exception $e) {
             $errors[] = "Erreur lors de l’insertion : " . $e->getMessage();
         }
