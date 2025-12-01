@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors',1);
+ini_set('display_startup_errors',1);
+error_reporting(E_ALL);
+
 session_start();
 require_once 'db.php';
 
@@ -18,7 +22,7 @@ $stmt = $pdo->prepare("
     c.name AS category_name
     FROM products p
     LEFT JOIN categories c ON p.category_id = c.id
-    WHERE p.user_id = ?
+    WHERE p.user_id = ? 
     ORDER BY p.created_at DESC
 ");
 $stmt->execute([$user_id]);
@@ -77,6 +81,13 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <a href="delete_product.php?id=<?= $p['id'] ?>" onclick="return confirm('Supprimer ce produit ?')" class="btn btn-danger btn-sm">
                         Supprimer
                     </a>
+                </td>
+                <td>
+                    <?php if ($p['status'] === 'active'): ?>
+                        <span class="badge bg-success">Activé</span>
+                    <?php else: ?>
+                        <span class="badge bg-secondary">Désactivé par l'administrateur</span>
+                    <?php endif; ?>
                 </td>
             </tr>
         <?php endforeach; ?>

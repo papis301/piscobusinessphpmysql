@@ -14,11 +14,12 @@
 
       <?php if (!isset($_SESSION['user'])): ?>
         <!-- Utilisateur NON connecté -->
-        <a href="login.php" class="btn btn-warning btn-sm mx-2 text-dark fw-bold">
-          <i class="fa fa-sign-in-alt"></i> Se connecter
-        </a>
+        
         <a href="register.php" class="btn btn-outline-light btn-sm mx-2">
           <i class="fa fa-user-plus"></i> S'inscrire
+        </a>
+        <a href="login.php" class="btn btn-warning btn-sm mx-2 text-dark fw-bold">
+          <i class="fa fa-sign-in-alt"></i> Se connecter
         </a>
 
       <?php else: ?>
